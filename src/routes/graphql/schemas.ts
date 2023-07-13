@@ -1,5 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Type } from '@fastify/type-provider-typebox';
+import { PrismaClient } from '@prisma/client';
 import { GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
+
+const prisma = new PrismaClient();
 
 export const gqlResponse = Type.Partial(
   Type.Object({
@@ -20,9 +25,9 @@ export const createGqlResponse = {
   ),
 };
 
-const MemberType = new GraphQLObjectType({
-  name: 'member',
-  fields: {
+const MemberTypeById = new GraphQLObjectType({
+  name: 'MemberTypeId',
+  fields: () => ({
     id: {
       type: GraphQLString
     },
@@ -32,18 +37,25 @@ const MemberType = new GraphQLObjectType({
     postsLimitPerMonth: {
       type: GraphQLString
     }
-  }
+  })
 });
 
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
-    book: {
-      type: MemberType,
+    memberTypeId: {
+      type: MemberTypeById,
       args: { id: { type: GraphQLString }},
-      resolve(parent, args){
-        // args.id
-        // here will be getting data from db
+      async resolve(parent, args){
+        if (args?.id) {
+          const res = await prisma.memberType.findUnique({  // return member by id
+            where: {
+              id: args.id,
+            }
+          });
+          return res;
+        }
+        return null;
       }
     }
   }

@@ -13,12 +13,33 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       },
     },
     async handler(req) {
-      // const res = await graphql({});
-      const queryStr = req.query as string;
+      const queryStr = req.body?.query;
       const res = (await graphql({
         schema: schema,
         source: queryStr,
-      })).data
+      }));
+      return {...res};
+    },
+  });
+
+  fastify.route({
+    url: '/:memberTypeId',
+    method: 'POST',
+    schema: {
+      ...createGqlResponse,
+      response: {
+        200: gqlResponse,
+      },
+    },
+    async handler(req) {
+      const queryStr = req.body?.query;
+      const res = (await graphql({
+        schema: schema,
+        source: queryStr,
+      }));
+      if (res === null) {
+        throw fastify.httpErrors.notFound();
+      }
       return {...res};
     },
   });
