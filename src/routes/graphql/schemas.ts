@@ -25,8 +25,8 @@ export const createGqlResponse = {
   ),
 };
 
-const MemberTypeById = new GraphQLObjectType({
-  name: 'MemberTypeId',
+const MemberType = new GraphQLObjectType({
+  name: 'member',
   fields: () => ({
     id: {
       type: GraphQLString
@@ -43,19 +43,29 @@ const MemberTypeById = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
-    memberTypeId: {
-      type: MemberTypeById,
+    member: {
+      type: MemberType,
       args: { id: { type: GraphQLString }},
-      async resolve(parent, args){
+      async resolve(args){
         if (args?.id) {
-          const res = await prisma.memberType.findUnique({  // return member by id
+          const res = prisma.memberType.findUnique({  // return member by id
             where: {
               id: args.id,
             }
+          }).then((data) => {
+            return data;
           });
           return res;
         }
         return null;
+      }
+    },
+    memberTypes: {
+      type: MemberType,
+      args: {},
+      async resolve(){
+        const data = await prisma.memberType.findMany().then((res) => { return res });
+        return data;
       }
     }
   }
