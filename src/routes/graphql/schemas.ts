@@ -41,9 +41,61 @@ const MemberType = new GraphQLObjectType({
   })
 });
 
+const PostType = new GraphQLObjectType({
+  name: 'posts',
+  fields: () => ({
+    id: {
+      type: GraphQLString
+    },
+    title: {
+      type: GraphQLString
+    },
+    content: {
+      type: GraphQLString
+    }
+  })
+});
+
+const UsersType = new GraphQLObjectType({
+  name: 'users',
+  fields: () => ({
+    id: {
+      type: GraphQLString
+    },
+    name: {
+      type: GraphQLString
+    },
+    balance: {
+      type: GraphQLString
+    }
+  })
+});
+const ProfilesType = new GraphQLObjectType({
+  name: 'profiles',
+  fields: () => ({
+    id: {
+      type: GraphQLString
+    },
+    isMale: {
+      type: GraphQLString
+    },
+    yearOfBirth: {
+      type: GraphQLString
+    }
+  })
+});
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
+    memberTypes: {
+      type: new GraphQLList(MemberType),
+      args: {},
+      async resolve() {
+        const res = await prisma.memberType.findMany();  // return all members
+        return res;
+      }
+    },
     memberType: {
       type: MemberType,
       args: { id: { type: GraphQLString }},
@@ -59,14 +111,30 @@ const RootQuery = new GraphQLObjectType({
         return {};
       }
     },
-    memberTypes: {
-      type: new GraphQLList(MemberType),
+    posts: {
+      type: new GraphQLList(PostType),
       args: {},
       async resolve() {
-        const res = await prisma.memberType.findMany();  // return all members
+        const res = await prisma.post.findMany();  // return all members
         return res;
       }
-    }
+    },
+    users: {
+      type: new GraphQLList(UsersType),
+      args: {},
+      async resolve() {
+        const res = await prisma.user.findMany();
+        return res;
+      }
+    },
+    profiles: {
+      type: new GraphQLList(ProfilesType),
+      args: {},
+      async resolve() {
+        const res = await prisma.profile.findMany();
+        return res;
+      }
+    },
   }
 });
 
