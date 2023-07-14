@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Type } from '@fastify/type-provider-typebox';
 import { PrismaClient } from '@prisma/client';
-import { GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
+import { GetResult } from '@prisma/client/runtime/index.js';
+import { GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
 
 const prisma = new PrismaClient();
 
@@ -26,7 +27,7 @@ export const createGqlResponse = {
 };
 
 const MemberType = new GraphQLObjectType({
-  name: 'member',
+  name: 'memberType',
   fields: () => ({
     id: {
       type: GraphQLString
@@ -43,29 +44,27 @@ const MemberType = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
-    member: {
+    memberType: {
       type: MemberType,
       args: { id: { type: GraphQLString }},
-      async resolve(args){
+      async resolve(parent, args){
         if (args?.id) {
-          const res = prisma.memberType.findUnique({  // return member by id
+          const res = await prisma.memberType.findUnique({  // return member by id
             where: {
               id: args.id,
             }
-          }).then((data) => {
-            return data;
           });
           return res;
         }
-        return null;
+        return {};
       }
     },
     memberTypes: {
-      type: MemberType,
+      type: new GraphQLList(MemberType),
       args: {},
-      async resolve(){
-        const data = await prisma.memberType.findMany().then((res) => { return res });
-        return data;
+      async resolve() {
+        const res = await prisma.memberType.findMany();  // return all members
+        return res;
       }
     }
   }

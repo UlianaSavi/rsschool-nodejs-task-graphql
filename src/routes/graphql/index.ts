@@ -17,18 +17,16 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       const queryStr = req.body?.query;
       const res = await graphql({
         schema: schema,
-        source: queryStr,
+        source: queryStr, // строка на языке GraphQL, представляет собой запрашиваемую инфу
       });
+
       // TODO: перенеси то, что ниже в schema, там сейчас есть подобное, но возвращается null (скорее всего из-за неправильного юза промисов)
-      // const data = await fastify.prisma.memberType.findMany().then((res) => { return res });
-      // console.log('HERE HAVE DATA (All members) -----> ', data);
-      // const data2 = await fastify.prisma.memberType.findUnique({
-      //   where: {
-      //     id: "basic",
-      //   }
-      // }).then((res) => { return res });
-      // console.log('HERE HAVE DATA (member by id) -----> ', data2);
-      
+      const data2 = await fastify.prisma.memberType.findUnique({
+        where: {
+          id: "basic",
+        }
+      }).then((res) => { return res });
+      console.log('HERE HAVE DATA (member by id) -----> ', data2);
       return {...res};
     }
   });
