@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-// /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-// /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Type } from '@fastify/type-provider-typebox';
 import { PrismaClient } from '@prisma/client';
 import { GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
@@ -16,15 +14,12 @@ export const gqlResponseSchema = Type.Partial(
 );
 
 export const createGqlResponseSchema = {
-  body: Type.Object(
-    {
-      query: Type.String(),
-      variables: Type.Optional(Type.Record(Type.String(), Type.Any())),
-    },
-    {
-      additionalProperties: false,
-    },
-  ),
+  body: Type.Object({
+    query: Type.String(),
+    variables: Type.Optional(Type.Record(Type.String(), Type.Any())),
+  }, {
+    additionalProperties: false,
+  }, ),
 };
 
 const MemberType = new GraphQLObjectType({
@@ -57,6 +52,46 @@ const PostType = new GraphQLObjectType({
   })
 });
 
+const UserSubscribedTo = new GraphQLObjectType({
+  name: 'userSubscribedTo',
+  fields: () => ({
+    id: {
+      type: GraphQLString
+    },
+    subscribedToUser: {
+      type: SubscribedToUser,
+      async resolve(parent, args) {
+        const res = await prisma.subscribersOnAuthors.findMany({
+          where: {
+            subscriberId: parent.id
+          }
+        });
+        return res.at(0) ? res.at(0) : null;
+      }
+    }
+  })
+});
+
+const SubscribedToUser = new GraphQLObjectType({
+  name: 'subscribedToUser',
+  fields: () => ({
+    id: {
+      type: GraphQLString
+    },
+    userSubscribedTo: {
+      type: UserSubscribedTo,
+      async resolve(parent, args) {
+        const res = await prisma.subscribersOnAuthors.findMany({
+          where: {
+            authorId: parent.id
+          }
+        });
+        return res.at(0) ? res.at(0) : null;
+      }
+    }
+  })
+});
+
 const UsersType = new GraphQLObjectType({
   name: 'users',
   fields: () => ({
@@ -77,7 +112,7 @@ const UsersType = new GraphQLObjectType({
             userId: parent.id
           }
         });
-        return res;
+        return res?.id ? res : null;
       }
     },
     posts: {
@@ -88,7 +123,18 @@ const UsersType = new GraphQLObjectType({
             authorId: parent.id
           }
         });
-        return res.at(0);
+        return res.at(0)?.id ? res.at(0) : null;
+      }
+    },
+    userSubscribedTo: {
+      type: UserSubscribedTo,
+      async resolve(parent, args) {
+        const res = await prisma.subscribersOnAuthors.findMany({
+          where: {
+            authorId: parent.id
+          }
+        });
+        return res.at(0) ? res.at(0) : null;
       }
     }
   })
@@ -114,9 +160,9 @@ const ProfilesType = new GraphQLObjectType({
             id: args.id,
           }
         });
-        return res.at(0);
+        return res.at(0)?.id ? res.at(0) : null;
       }
-  }
+    }
   })
 });
 
@@ -127,20 +173,26 @@ const RootQuery = new GraphQLObjectType({
       type: new GraphQLList(MemberType),
       args: {},
       async resolve() {
-        const res = await prisma.memberType.findMany();  // return all members
+        const res = await prisma.memberType.findMany(); // return all members
         return res;
       }
     },
     memberType: {
       type: MemberType,
-      args: { id: { type: GraphQLString }},
-      async resolve(parent, args: { id: string}){
-        const res = await prisma.memberType.findUnique({  // return member by id
+      args: {
+        id: {
+          type: GraphQLString
+        }
+      },
+      async resolve(parent, args: {
+        id: string
+      }) {
+        const res = await prisma.memberType.findUnique({ // return member by id
           where: {
             id: args.id,
           }
         });
-        return res;
+        return res?.id ? res : null;
       }
     },
     posts: {
@@ -153,14 +205,20 @@ const RootQuery = new GraphQLObjectType({
     },
     post: {
       type: PostType,
-      args: { id: { type: GraphQLString }},
-      async resolve(parent, args: { id: string}){
+      args: {
+        id: {
+          type: GraphQLString
+        }
+      },
+      async resolve(parent, args: {
+        id: string
+      }) {
         const res = await prisma.post.findUnique({
           where: {
             id: args.id,
           }
         });
-        return res;
+        return res?.id ? res : null;
       }
     },
     users: {
@@ -173,14 +231,20 @@ const RootQuery = new GraphQLObjectType({
     },
     user: {
       type: UsersType,
-      args: { id: { type: GraphQLString }},
-      async resolve(parent, args: { id: string}){
+      args: {
+        id: {
+          type: GraphQLString
+        }
+      },
+      async resolve(parent, args: {
+        id: string
+      }) {
         const res = await prisma.user.findUnique({
           where: {
             id: args.id,
           }
         });
-        return res;
+        return res?.id ? res : null;
       }
     },
     profiles: {
@@ -193,14 +257,20 @@ const RootQuery = new GraphQLObjectType({
     },
     profile: {
       type: ProfilesType,
-      args: { id: { type: GraphQLString }},
-      async resolve(parent, args: { id: string}){
+      args: {
+        id: {
+          type: GraphQLString
+        }
+      },
+      async resolve(parent, args: {
+        id: string
+      }) {
         const res = await prisma.profile.findUnique({
           where: {
             id: args.id,
           }
         });
-        return res;
+        return res?.id ? res : null;
       }
     },
   }
