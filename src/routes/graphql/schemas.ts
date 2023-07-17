@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+// /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+// /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Type } from '@fastify/type-provider-typebox';
 import { PrismaClient } from '@prisma/client';
-import { GetResult } from '@prisma/client/runtime/index.js';
 import { GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
 
 const prisma = new PrismaClient();
@@ -99,11 +98,11 @@ const RootQuery = new GraphQLObjectType({
     memberType: {
       type: MemberType,
       args: { id: { type: GraphQLString }},
-      async resolve(parent, args){
+      async resolve(parent, args: { id: string}){
         if (args?.id) {
           const res = await prisma.memberType.findUnique({  // return member by id
             where: {
-              id: args.id,
+              id: args.id || "basic"
             }
           });
           return res;
@@ -115,8 +114,23 @@ const RootQuery = new GraphQLObjectType({
       type: new GraphQLList(PostType),
       args: {},
       async resolve() {
-        const res = await prisma.post.findMany();  // return all members
+        const res = await prisma.post.findMany();
         return res;
+      }
+    },
+    post: {
+      type: PostType,
+      args: { id: { type: GraphQLString }},
+      async resolve(parent, args: { id: string}){
+        if (args?.id) {
+          const res = await prisma.post.findUnique({
+            where: {
+              id: args.id,
+            }
+          });
+          return res;
+        }
+        return {};
       }
     },
     users: {
@@ -127,12 +141,42 @@ const RootQuery = new GraphQLObjectType({
         return res;
       }
     },
+    user: {
+      type: UsersType,
+      args: { id: { type: GraphQLString }},
+      async resolve(parent, args: { id: string}){
+        if (args?.id) {
+          const res = await prisma.user.findUnique({
+            where: {
+              id: args.id,
+            }
+          });
+          return res;
+        }
+        return {};
+      }
+    },
     profiles: {
       type: new GraphQLList(ProfilesType),
       args: {},
       async resolve() {
         const res = await prisma.profile.findMany();
         return res;
+      }
+    },
+    profile: {
+      type: ProfilesType,
+      args: { id: { type: GraphQLString }},
+      async resolve(parent, args: { id: string}){
+        if (args?.id) {
+          const res = await prisma.profile.findUnique({
+            where: {
+              id: args.id,
+            }
+          });
+          return res;
+        }
+        return {};
       }
     },
   }
