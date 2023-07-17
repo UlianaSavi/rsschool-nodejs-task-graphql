@@ -6,14 +6,14 @@ import { GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString } from 'gr
 
 const prisma = new PrismaClient();
 
-export const gqlResponse = Type.Partial(
+export const gqlResponseSchema = Type.Partial(
   Type.Object({
     data: Type.Any(),
     errors: Type.Any(),
   }),
 );
 
-export const createGqlResponse = {
+export const createGqlResponseSchema = {
   body: Type.Object(
     {
       query: Type.String(),
