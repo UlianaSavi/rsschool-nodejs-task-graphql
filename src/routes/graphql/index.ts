@@ -18,8 +18,9 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         schema: schema,
         source: queryStr, // строка на языке GraphQL, представляет собой запрашиваемую инфу
       });
-      console.log('Here req query ----> \n', req.body.query);
-      console.log('Here res.data ----> \n', JSON.parse(JSON.stringify(res.data))); // profile: null
+      if (res.errors) {
+        console.log('HERE errors -----> ', res.errors);
+      }
       return {...res};
     }
   });

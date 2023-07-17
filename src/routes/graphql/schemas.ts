@@ -83,12 +83,12 @@ const UsersType = new GraphQLObjectType({
     posts: {
       type: PostType,
       async resolve(parent, args) {
-        const res = await prisma.post.findUnique({
+        const res = await prisma.post.findMany({
           where: {
-            userId: parent.id
+            authorId: parent.id
           }
         });
-        return res;
+        return res.at(0);
       }
     }
   })
@@ -109,12 +109,12 @@ const ProfilesType = new GraphQLObjectType({
     memberType: {
       type: MemberType,
       async resolve(parent, args) {
-        const res = await prisma.memberType.findUnique({
+        const res = await prisma.memberType.findMany({
           where: {
-            profileId: parent.id,
+            id: args.id,
           }
         });
-        return res;
+        return res.at(0);
       }
   }
   })
