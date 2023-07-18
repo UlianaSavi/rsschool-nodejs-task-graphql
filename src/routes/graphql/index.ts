@@ -1,6 +1,7 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { createGqlResponseSchema, gqlResponseSchema, schema } from './schemas.js';
 import { graphql } from 'graphql';
+import { UUIDType } from './types/uuid.js';
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   fastify.route({
@@ -15,7 +16,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     async handler(req) {
       const queryStr = req.body?.query;
       const variablesStr = req.body?.variables;
-
+      console.log(UUIDType);
       const res = await graphql({
         schema: schema,
         source: queryStr,

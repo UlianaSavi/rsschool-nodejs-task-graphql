@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Type } from '@fastify/type-provider-typebox';
 import { PrismaClient } from '@prisma/client';
-import { GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
+import { GraphQLEnumType, GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
+import { UUIDType } from './types/uuid.js';
 
 const prisma = new PrismaClient();
 
@@ -191,6 +192,14 @@ const ProfilesType = new GraphQLObjectType({
   })
 });
 
+const MemberTypeId = new GraphQLEnumType({
+  name: 'MemberTypeId',
+  values: {
+    BASIC: { value: 'basic' },
+    BUSINESS: { value: 'business'},
+  }
+});
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
@@ -316,5 +325,6 @@ const RootQuery = new GraphQLObjectType({
 });
 
 export const schema = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  types: [UUIDType, MemberTypeId ]
 });
