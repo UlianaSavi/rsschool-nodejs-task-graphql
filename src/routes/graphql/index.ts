@@ -25,12 +25,8 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
 
       if (res) {
         if (res.errors) {
-          // console.log('HERE errors -----> ', res.errors.at(0));
+          console.log('HERE errors -----> ', res.errors.at(0));
         }
-        console.log('1 HERE queryStr -----> ', queryStr);
-        console.log('1 HERE variablesStr -----> ', variablesStr);
-        // console.log('2 HERE res -----> ', res);
-  
         return {...res};
       }
     }
