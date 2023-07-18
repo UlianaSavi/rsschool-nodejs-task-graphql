@@ -27,7 +27,7 @@ const MemberType = new GraphQLObjectType({
   name: 'memberType',
   fields: () => ({
     id: {
-      type: GraphQLString
+      type: UUIDType
     },
     discount: {
       type: GraphQLString
@@ -42,7 +42,7 @@ const PostType = new GraphQLObjectType({
   name: 'posts',
   fields: () => ({
     id: {
-      type: GraphQLString
+      type: UUIDType
     },
     title: {
       type: GraphQLString
@@ -57,7 +57,7 @@ const SubscribedToUserType = new GraphQLObjectType({
   name: 'subscribedToUser',
   fields: () => ({
     id: {
-      type: GraphQLString
+      type: UUIDType
     },
     userSubscribedTo: {
       type: UserSubscribedToType,
@@ -79,7 +79,7 @@ const UserSubscribedToType = new GraphQLObjectType({
   name: 'userSubscribedTo',
   fields: () => ({
     id: {
-      type: GraphQLString
+      type: UUIDType
     },
     subscribedToUser: {
       type: SubscribedToUserType,
@@ -101,7 +101,7 @@ const UsersType = new GraphQLObjectType({
   name: 'users',
   fields: () => ({
     id: {
-      type: GraphQLString
+      type: UUIDType
     },
     name: {
       type: GraphQLString
@@ -168,7 +168,7 @@ const ProfilesType = new GraphQLObjectType({
   name: 'profiles',
   fields: () => ({
     id: {
-      type: GraphQLString
+      type: UUIDType
     },
     isMale: {
       type: GraphQLString
@@ -217,7 +217,7 @@ const RootQuery = new GraphQLObjectType({
       type: MemberType,
       args: {
         id: {
-          type: GraphQLString
+          type: UUIDType
         }
       },
       async resolve(parent, args: { id: string }) {
@@ -245,7 +245,7 @@ const RootQuery = new GraphQLObjectType({
       type: PostType,
       args: {
         id: {
-          type: GraphQLString
+          type: UUIDType
         }
       },
       async resolve(parent, args: {
@@ -275,7 +275,7 @@ const RootQuery = new GraphQLObjectType({
       type: UsersType,
       args: {
         id: {
-          type: GraphQLString
+          type: UUIDType
         }
       },
       async resolve(parent, args: {
@@ -305,7 +305,7 @@ const RootQuery = new GraphQLObjectType({
       type: ProfilesType,
       args: {
         id: {
-          type: GraphQLString
+          type: UUIDType
         }
       },
       async resolve(parent, args: {
