@@ -14,14 +14,24 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     },
     async handler(req) {
       const queryStr = req.body?.query;
+      const variablesStr = req.body?.variables;
+
       const res = await graphql({
         schema: schema,
-        source: queryStr, // строка на языке GraphQL, представляет собой запрашиваемую инфу
+        source: queryStr,
+        variableValues: variablesStr
       });
-      if (res.errors) {
-        console.log('HERE errors -----> ', res.errors);
+
+      if (res) {
+        if (res.errors) {
+          // console.log('HERE errors -----> ', res.errors.at(0));
+        }
+        console.log('1 HERE queryStr -----> ', queryStr);
+        console.log('1 HERE variablesStr -----> ', variablesStr);
+        // console.log('2 HERE res -----> ', res);
+  
+        return {...res};
       }
-      return {...res};
     }
   });
 };
