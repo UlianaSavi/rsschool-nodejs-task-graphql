@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Type } from '@fastify/type-provider-typebox';
 import { PrismaClient } from '@prisma/client';
-import { GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
+import { GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLInputObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLInt, GraphQLFloat } from 'graphql';
 import { UUIDType } from './types/uuid.js';
 import { MemberTypeId } from './types/memberTypeId.js';
 
@@ -186,7 +186,69 @@ const ProfilesType = new GraphQLObjectType({
   })
 });
 
+const CreatePostInput = new GraphQLInputObjectType({
+  name: 'CreatePostInput',
+  fields: {
+    title: { type: GraphQLString },
+    content: { type: GraphQLString },
+    authorId: { type: GraphQLString }
+  }
+});
 
+const CreateUserInput = new GraphQLInputObjectType({
+  name: 'CreateUserInput',
+  fields: {
+    name: { type: GraphQLString },
+    balance: { type: GraphQLFloat },
+  }
+});
+
+const CreateProfileInput = new GraphQLInputObjectType({
+  name: 'CreateProfileInput',
+  fields: {
+    isMale: { type: GraphQLBoolean },
+    yearOfBirth: { type: GraphQLFloat },
+    memberTypeId: { type: GraphQLString },
+    userId: { type: GraphQLString }
+  }
+});
+
+const Mutation = new GraphQLObjectType({
+  name: 'mutation',
+  fields: {
+    createPost: {
+      type: PostType,
+      args: { dto: {type: CreatePostInput} },
+      async resolve(parent, args) {
+        console.log('HERE ARGS ', args.dto);
+        const res = await prisma.post.create({
+          data: args.dto,
+        });
+        return res;
+      }
+    },
+    createUser: {
+      type: UsersType,
+      args: { dto: {type: CreateUserInput} },
+      async resolve(parent, args) {
+        const res = await prisma.user.create({
+          data: args.dto,
+        });
+        return res;
+      }
+    },
+    createProfile: {
+      type: ProfilesType,
+      args: { dto: {type: CreateProfileInput} },
+      async resolve(parent, args) {
+        const res = await prisma.profile.create({
+          data: args.dto,
+        });
+        return res;
+      }
+    }
+  }
+})
 
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -306,5 +368,6 @@ const RootQuery = new GraphQLObjectType({
 
 export const schema = new GraphQLSchema({
   query: RootQuery,
-  types: [UUIDType, MemberTypeId]
+  mutation: Mutation,
+  types: [UUIDType, MemberTypeId, CreatePostInput, CreateProfileInput, CreateUserInput]
 });
