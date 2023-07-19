@@ -340,11 +340,21 @@ const Mutation = new GraphQLObjectType({
       type: ProfilesType,
       args: { id: {type: UUIDType}, dto: { type: ChangeProfileInput} },
       async resolve(parent, args) {
-        const res = prisma.profile.update({
-          where: { id: args.id },
-          data: args.dto,
+        const existProfile = await prisma.profile.findUnique({
+          where: {
+            id: args.id,
+          }
         });
-        return res;
+        if (existProfile) {
+          const res = prisma.profile.update({
+            where: { id: args.id },
+            data: args.dto,
+          });
+          return res;
+        } else {
+          const error = new Error(`Field ${args.id as string} is not defined by type ChangeProfileInput`)
+          throw error;
+        }
       }
     },
     changeUser: {
