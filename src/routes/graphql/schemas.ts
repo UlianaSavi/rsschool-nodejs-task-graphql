@@ -241,11 +241,8 @@ const Mutation = new GraphQLObjectType({
       type: ProfilesType,
       args: { dto: {type: CreateProfileInput} },
       async resolve(parent, args) {
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        const yearOfBirth = `${args.dto.yearOfBirth}`;
+        const yearOfBirth = `${args.dto.yearOfBirth as number}`;
         const testDate = Number(new Date(yearOfBirth));
-        console.log('testDate ',testDate);
-        console.log('new Date(testDate) ', new Date(testDate));
         
         if (!isNaN(testDate)) {
           const res = await prisma.profile.create({
@@ -256,9 +253,56 @@ const Mutation = new GraphQLObjectType({
           const error = new Error(`Int cannot represent non-integer value: ${ yearOfBirth }`)
           throw error;
         }
-        
       }
-      
+    },
+    deletePost: {
+      type: UUIDType,
+      args: { id: {type: UUIDType} },
+      async resolve(parent, args) {
+        
+        try {
+          await prisma.post.delete({
+            where: {
+              id: args.id,
+            },
+          });
+          return null;
+        } catch (error) {
+          return error;
+        }
+      }
+    },
+    deleteProfile: {
+      type: UUIDType,
+      args: { id: {type: UUIDType} },
+      async resolve(parent, args) {
+        try {
+          await prisma.profile.delete({
+            where: {
+              id: args.id,
+            },
+          });
+          return null;
+        } catch (error) {
+          return error;
+        }
+      }
+    },
+    deleteUser: {
+      type: UUIDType,
+      args: { id: {type: UUIDType} },
+      async resolve(parent, args) {
+        try {
+          await prisma.user.delete({
+            where: {
+              id: args.id
+            }
+          });
+          return null;
+        } catch (error) {
+          return error;
+        }
+      }
     }
   }
 })
