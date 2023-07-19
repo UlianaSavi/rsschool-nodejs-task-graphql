@@ -213,6 +213,27 @@ const CreateProfileInput = new GraphQLInputObjectType({
   }
 });
 
+const ChangePostInput = new GraphQLInputObjectType({
+  name: 'ChangePostInput',
+  fields: {
+    title: { type: GraphQLString },
+  }
+});
+
+const ChangeProfileInput = new GraphQLInputObjectType({
+  name: 'ChangeProfileInput',
+  fields: {
+    isMale: { type: GraphQLBoolean },
+  }
+});
+
+const ChangeUserInput = new GraphQLInputObjectType({
+  name: 'ChangeUserInput',
+  fields: {
+    name: { type: GraphQLString },
+  }
+});
+
 const Mutation = new GraphQLObjectType({
   name: 'mutation',
   fields: {
@@ -303,7 +324,40 @@ const Mutation = new GraphQLObjectType({
           return error;
         }
       }
-    }
+    },
+    changePost: {
+      type: PostType,
+      args: { id: {type: UUIDType}, dto: { type: ChangePostInput}},
+      async resolve(parent, args) {
+        const res = prisma.post.update({
+          where: { id: args.id },
+          data: args.dto,
+        });
+        return res;
+      }
+    },
+    changeProfile: {
+      type: ProfilesType,
+      args: { id: {type: UUIDType}, dto: { type: ChangeProfileInput} },
+      async resolve(parent, args) {
+        const res = prisma.profile.update({
+          where: { id: args.id },
+          data: args.dto,
+        });
+        return res;
+      }
+    },
+    changeUser: {
+      type: UsersType,
+      args: { id: {type: UUIDType}, dto: { type: ChangeUserInput} },
+      async resolve(parent, args) {
+        const res = prisma.user.update({
+          where: { id: args.id },
+          data: args.dto,
+        });
+        return res;
+      }
+    },
   }
 })
 
