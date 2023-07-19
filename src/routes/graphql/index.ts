@@ -20,14 +20,9 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         source: queryStr,
         variableValues: variablesStr
       });
-
-      // TODO: разобраться с типизацией UUID! и MemberTypeId! в query, а точнее:
-      // выдает ошибку: "Variable \"$postId\" of type \"UUID!\" used in position expecting type \"String\"." - потому что думает, что variableValues - stringи
-      // а должно быть UUID ---> соотв. нужно:
-      // погуглить про проверки типизации в query -> попробовать реализовать через них
       if (res) {
         if (res.errors) {
-          // console.log('HERE errors -----> ', res.errors.at(0));
+          console.log('HERE errors -----> ', res.errors.at(0));
         }
         return {...res};
       }
