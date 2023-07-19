@@ -241,11 +241,24 @@ const Mutation = new GraphQLObjectType({
       type: ProfilesType,
       args: { dto: {type: CreateProfileInput} },
       async resolve(parent, args) {
-        const res = await prisma.profile.create({
-          data: args.dto,
-        });
-        return res;
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        const yearOfBirth = `${args.dto.yearOfBirth}`;
+        const testDate = Number(new Date(yearOfBirth));
+        console.log('testDate ',testDate);
+        console.log('new Date(testDate) ', new Date(testDate));
+        
+        if (!isNaN(testDate)) {
+          const res = await prisma.profile.create({
+            data: args.dto,
+          })
+          return res;
+        } else {
+          const error = new Error(`Int cannot represent non-integer value: ${ yearOfBirth }`)
+          throw error;
+        }
+        
       }
+      
     }
   }
 })
