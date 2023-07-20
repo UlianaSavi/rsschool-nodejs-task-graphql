@@ -1,7 +1,6 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { createGqlResponseSchema, gqlResponseSchema, schema } from './schemas.js';
 import { graphql } from 'graphql';
-import depthLimit  from 'graphql-depth-limit';
 import { depthLimitValidate } from './validators/depthLimitValidate.js';
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
