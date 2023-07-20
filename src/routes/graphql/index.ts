@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { createGqlResponseSchema, gqlResponseSchema, schema } from './schemas.js';
 import { graphql } from 'graphql';
 import depthLimit  from 'graphql-depth-limit';
+import { depthLimitValidate } from './validators/depthLimitValidate.js';
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   fastify.route({
@@ -16,18 +17,28 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     async handler(req) {
       const queryStr = req.body?.query;
       const variablesStr = req.body?.variables;
+      const MAX_QUERY_DEPTH = 5;
+
+      const depthQueryError = depthLimitValidate(queryStr, schema, MAX_QUERY_DEPTH);
+
+      if(depthQueryError) {
+        const message = `exceeds maximum operation depth of ${ MAX_QUERY_DEPTH }`
+        return {
+          errors: [
+            {
+              message: message,
+            },
+          ],
+        }
+      }
 
       const res = await graphql({
         schema: schema,
         source: queryStr,
         variableValues: variablesStr,
       });
-      if (res) {
-        if (res.errors) {
-          console.log('You got errors -----> \n', res.errors.at(0)?.message);
-        }
-        return {...res};
-      }
+
+      return { ...res };
     },
   });
 };
