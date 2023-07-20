@@ -96,6 +96,24 @@ const UserSubscribedToType = new GraphQLObjectType({
   })
 });
 
+// const SubscribeUserToType = new GraphQLObjectType({
+//   name: 'SubscribeUserTo',
+//   fields: () => ({
+//     id: {
+//       type: UUIDType
+//     },
+//   }
+// )});
+
+// const UnsubscribeFromType = new GraphQLObjectType({
+//   name: 'UnsubscribeFrom',
+//   fields: () => ({
+//     id: {
+//       type: UUIDType
+//     },
+//   }
+// )});
+
 const UsersType = new GraphQLObjectType({
   name: 'users',
   fields: () => ({
@@ -368,6 +386,35 @@ const Mutation = new GraphQLObjectType({
         return res;
       }
     },
+    subscribeTo: {
+      type: new GraphQLList(UsersType),
+      args: { userId: {type: UUIDType}, authorId: {type: UUIDType} },
+      async resolve(parent, args) {
+        const res = await prisma.subscribersOnAuthors.create({
+          data: {
+            authorId: args.authorId,
+            subscriberId: args.userId
+          }
+        });
+        return [res];
+      }
+    },
+    unsubscribeFrom: {
+      type: new GraphQLList(UUIDType),
+      args: { userId: {type: UUIDType}, authorId: {type: UUIDType} },
+      async resolve(parent, args) {
+        const res = await prisma.subscribersOnAuthors.delete({
+          where: {
+            subscriberId_authorId: {
+              subscriberId: args.userId,
+              authorId: args.authorId
+            }
+          },
+        });
+        
+        return  [res.authorId, res.subscriberId];
+      }
+    }
   }
 })
 

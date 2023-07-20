@@ -12,6 +12,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         200: gqlResponseSchema,
       },
     },
+    // TODO: последний тест в мутациях ждет тебя :)
     async handler(req) {
       const queryStr = req.body?.query;
       const variablesStr = req.body?.variables;
@@ -23,7 +24,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       });
       if (res) {
         if (res.errors) {
-          console.log('HERE errors -----> ', res.errors.at(0));
+          console.log('You got errors -----> \n', res.errors.at(0));
         }
         return {...res};
       }
