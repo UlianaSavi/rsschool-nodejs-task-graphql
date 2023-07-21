@@ -2,8 +2,11 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { createGqlResponseSchema, gqlResponseSchema, schema } from './schemas.js';
 import { graphql } from 'graphql';
 import { depthLimitValidate } from './validators/depthLimitValidate.js';
+import { createLoaders } from './types/dataLoader.js';
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
+  const { postsDataloader, memberTypesDataloader, profilesByIdDataloader, profilesDataloader } = await createLoaders(fastify);
+
   fastify.route({
     url: '/',
     method: 'POST',
@@ -35,6 +38,13 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         schema: schema,
         source: queryStr,
         variableValues: variablesStr,
+        contextValue: {
+          fastify,
+          postsDataloader,
+          profilesDataloader,
+          profilesByIdDataloader,
+          memberTypesDataloader
+        },
       });
 
       return { ...res };

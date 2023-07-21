@@ -3,6 +3,16 @@
 import { GraphQLList, GraphQLObjectType, GraphQLString, GraphQLInputObjectType, GraphQLBoolean, GraphQLFloat } from 'graphql';
 import { UUIDType } from './uuid.js';
 import { prisma } from '../schemas.js';
+import { FastifyInstance } from 'fastify';
+import DataLoader from 'dataloader';
+
+type Context = {
+    fastify: FastifyInstance;
+    postsDataloader: DataLoader<unknown, unknown, unknown>;
+    profilesByIdDataloader: DataLoader<unknown, unknown, unknown>;
+    profilesDataloader: DataLoader<unknown, unknown, unknown>;
+    memberTypesDataloader: DataLoader<unknown, unknown, unknown>;
+  };
 
 export const MemberType = new GraphQLObjectType({
     name: 'memberType',
@@ -94,26 +104,16 @@ export const UsersType = new GraphQLObjectType({
         },
         profile: {
             type: ProfilesType,
-            async resolve(parent, args) {
-                const res = await prisma.profile.findUnique({
-                    where: {
-                        userId: parent.id
-                    }
-                });
-
-                return res ?.id ? res : null;
+            async resolve(parent, args, context: Context) {
+                const profile = await context.profilesDataloader.load(parent.id);
+                return profile;
             }
         },
         posts: {
             type: new GraphQLList(PostType),
-            async resolve(parent, args) {
-                const res = await prisma.post.findMany({
-                    where: {
-                        authorId: parent.id
-                    }
-                });
-
-                return res.at(0) ?.id ? res : null;
+            async resolve(parent, args, context: Context) {
+                const posts = await context.postsDataloader.load(parent.id);
+                return posts;
             }
         },
         userSubscribedTo: {
@@ -161,14 +161,11 @@ export const ProfilesType = new GraphQLObjectType({
         },
         memberType: {
             type: MemberType,
-            async resolve(parent, args) {
-                const res = await prisma.memberType.findMany({
-                    where: {
-                        id: args.id,
-                    }
-                });
-
-                return res.at(0) ?.id ? res.at(0) : null;
+            async resolve(parent, args, context: Context) {
+                const userProfile: any = await context.profilesByIdDataloader.load(parent.id);
+                // console.log('Here userProfile', userProfile);
+                const memberType = await context.memberTypesDataloader.load(userProfile.memberTypeId);
+                return memberType;
             }
         }
     })
