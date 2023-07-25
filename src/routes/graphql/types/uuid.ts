@@ -26,6 +26,6 @@ export const UUIDType = new GraphQLScalarType({
         return ast.value;
       }
     }
-    return undefined;
+    return '';
   },
 });
